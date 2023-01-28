@@ -16,7 +16,7 @@ export class TranslateService {
       return message;
     }
 
-    await this.translate('ko', 'en', message);
+    return await this.translate('ko', 'en', message);
   }
 
   async enToKo(message: string) {
@@ -27,6 +27,10 @@ export class TranslateService {
   }
 
   private async translate(source: LANGUAGE, target: LANGUAGE, message: string) {
+    if (!message) {
+      return '';
+    }
+
     const { data } = await this.httpService.axiosRef.post(
       'https://openapi.naver.com/v1/papago/n2mt',
       `source=${source}&target=${target}&text=${message.trim()}`,
@@ -41,6 +45,6 @@ export class TranslateService {
       },
     );
 
-    return data.message.result.translatedText;
+    return data.message.result.translatedText ?? message.trim();
   }
 }
