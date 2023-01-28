@@ -1,12 +1,12 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { SlackMessageService } from './slack-message.service';
+import { SummaryService } from './summary.service';
 
 @Controller('/summary')
 export class SummaryController {
-  constructor(private readonly messageService: SlackMessageService) {}
+  constructor(private readonly summaryService: SummaryService) {}
 
   @Post()
-  async sendSummary(@Body('message') message: string) {
-    return await this.messageService.send(message);
+  async summary(@Body('message') message: string) {
+    return await this.summaryService.summary(message);
   }
 }
