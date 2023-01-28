@@ -2,6 +2,8 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+export type LANGUAGE = 'ko' | 'en';
+
 @Injectable()
 export class TranslateService {
   constructor(
@@ -9,10 +11,25 @@ export class TranslateService {
     private readonly configService: ConfigService,
   ) {}
 
-  async translate(message: string) {
-    const result = await this.httpService.post(
+  async koToEn(message: string) {
+    if (!/[ㄱ-ㅎ]|[가-힣]/g.test(message)) {
+      return message;
+    }
+
+    await this.translate('ko', 'en', message);
+  }
+
+  async enToKo(message: string) {
+    if (!/[a-z]/g.test(message)) {
+      return message;
+    }
+    return await this.translate('en', 'ko', message);
+  }
+
+  private async translate(source: LANGUAGE, target: LANGUAGE, message: string) {
+    const { data } = await this.httpService.axiosRef.post(
       'https://openapi.naver.com/v1/papago/n2mt',
-      `source=ko&target=en&text=${message}`,
+      `source=${source}&target=${target}&text=${message.trim()}`,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
@@ -24,6 +41,6 @@ export class TranslateService {
       },
     );
 
-    return result;
+    return data.message.result.translatedText;
   }
 }
